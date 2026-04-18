@@ -21,7 +21,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build Docker image
-        run: docker build -t ghcr.io/${{ github.repository }}/rag-api:latest .
+        run: docker build -t ghcr.io/nicole52-web/rag-api:latest .
 
       - name: Push Docker image
-        run: docker push ghcr.io/${{ github.repository }}/rag-api:latest
+        run: docker push ghcr.io/nicole52-web/rag-api:latest
