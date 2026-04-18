@@ -20,8 +20,16 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u nicole52-web --password-stdin
 
+      - name: Extract commit SHA
+        id: vars
+        run: echo "SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build Docker image
-        run: docker build -t ghcr.io/nicole52-web/rag-api:latest .
+        run: |
+          docker build -t ghcr.io/nicole52-web/rag-api:latest \
+                       -t ghcr.io/nicole52-web/rag-api:${{ env.SHA_SHORT }} .
 
       - name: Push Docker image
-        run: docker push ghcr.io/nicole52-web/rag-api:latest
+        run: |
+          docker push ghcr.io/nicole52-web/rag-api:latest
+          docker push ghcr.io/nicole52-web/rag-api:${{ env.SHA_SHORT }}
