@@ -19,10 +19,6 @@ RUN curl -fsSL https://ollama.com/install.sh | sh
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pull models (so they exist at runtime)
-RUN ollama pull qwen2.5:0.5b
-RUN ollama pull nomic-embed-text
-
 # Copy your app code
 COPY app/ ./app
 COPY profile.txt .
@@ -32,4 +28,4 @@ RUN mkdir -p /data/chroma_db
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "ollama serve & uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "ollama serve & sleep 5 && ollama pull qwen2.5:0.5b && ollama pull nomic-embed-text && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
