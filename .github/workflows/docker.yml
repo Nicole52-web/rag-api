@@ -3,7 +3,9 @@ name: Build and Push RAG API
 on:
   push:
     branches:
-      - main   # runs when you push to main branch
+      - main
+    tags:
+      - "v*.*.*"
 
 jobs:
   build:
@@ -11,25 +13,29 @@ jobs:
 
     permissions:
       contents: read
-      packages: write   # REQUIRED for GHCR push
+      packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u nicole52-web --password-stdin
+      - name: Extract version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "VERSION=latest" >> $GITHUB_ENV
+          fi
 
-      - name: Extract commit SHA
-        id: vars
-        run: echo "SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u nicole52-web --password-stdin
 
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/nicole52-web/rag-api:latest \
-                       -t ghcr.io/nicole52-web/rag-api:${{ env.SHA_SHORT }} .
+                       -t ghcr.io/nicole52-web/rag-api:${{ env.VERSION }} .
 
       - name: Push Docker image
         run: |
           docker push ghcr.io/nicole52-web/rag-api:latest
-          docker push ghcr.io/nicole52-web/rag-api:${{ env.SHA_SHORT }}
+          docker push ghcr.io/nicole52-web/rag-api:${{ env.VERSION }}
