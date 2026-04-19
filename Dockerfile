@@ -9,6 +9,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
+    zstd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Ollama
